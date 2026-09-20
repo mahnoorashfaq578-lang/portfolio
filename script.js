@@ -656,6 +656,39 @@ topBtn.addEventListener(
     }
 );
 
+/* =====================================
+   SERVICES SCROLL ANIMATION
+===================================== */
+
+const servicesSection = document.querySelector(".services");
+
+if (servicesSection) {
+
+    const servicesObserver = new IntersectionObserver(
+        function(entries) {
+
+            entries.forEach(function(entry) {
+
+                if (entry.isIntersecting) {
+
+                    servicesSection.classList.add("is-visible");
+
+                } else {
+
+                    servicesSection.classList.remove("is-visible");
+
+                }
+
+            });
+
+        },
+        {
+            threshold: 0.18
+        }
+    );
+
+    servicesObserver.observe(servicesSection);
+}
 
 
 /* =====================================================
