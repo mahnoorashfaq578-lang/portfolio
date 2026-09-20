@@ -148,7 +148,7 @@ img {
 
 ===================================================== */
 
-.loader {
+/* .loader {
 
     position: fixed;
 
@@ -236,15 +236,287 @@ img {
 
     }
 
+} */
+
+
+
+
+/* ================= LOADER ================= */
+/* =====================================================
+   LOADER
+===================================================== */
+
+.loader {
+    position: fixed;
+    inset: 0;
+
+    background: var(--navy);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 9999;
+
+    overflow: hidden;
+
+    transition:
+        opacity .8s ease,
+        visibility .8s ease;
 }
 
 
+/* ================= BACKGROUND RINGS ================= */
 
-/* =====================================================
+.loader::before,
+.loader::after {
+    content: "";
+
+    position: absolute;
+
+    border: 1px solid rgba(218, 198, 166, .15);
+
+    border-radius: 50%;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    pointer-events: none;
+}
+
+
+.loader::before {
+    width: 300px;
+    height: 300px;
+
+    animation: loaderRing 4s ease-in-out infinite;
+}
+
+
+.loader::after {
+    width: 520px;
+    height: 520px;
+
+    border-color: rgba(218, 198, 166, .07);
+
+    animation: loaderRing 5s ease-in-out infinite reverse;
+}
+
+
+/* ================= HIDE ================= */
+
+.loader.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+/* ================= CONTENT ================= */
+
+.loader-content {
+    position: relative;
+
+    z-index: 2;
+
+    text-align: center;
+
+    color: var(--beige);
+
+    width: 220px;
+}
+
+
+/* ================= LETTER ================= */
+
+.loader-content span {
+    display: block;
+
+    font-family: "Playfair Display", serif;
+
+    font-size: 90px;
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    color: var(--beige);
+
+    opacity: 0;
+
+    transform: translateY(25px);
+
+    animation: loaderLetter 1s ease forwards;
+}
+
+
+/* ================= LINE ================= */
+
+.loader-line {
+    position: relative;
+
+    width: 0;
+
+    height: 2px;
+
+    background: var(--gold);
+
+    margin: 18px auto 14px;
+
+    overflow: hidden;
+
+    animation: loaderLine 1.2s ease .35s forwards;
+}
+
+
+/* Moving shine */
+
+.loader-line::after {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -100%;
+
+    width: 60%;
+    height: 100%;
+
+    background: var(--beige);
+
+    animation: loaderShine 1.3s ease-in-out .8s infinite;
+}
+
+
+/* ================= PORTFOLIO ================= */
+
+.loader-content small {
+    display: block;
+
+    font-size: 10px;
+
+    font-weight: 500;
+
+    letter-spacing: 6px;
+
+    color: var(--beige);
+
+    opacity: 0;
+
+    transform: translateY(10px);
+
+    animation: loaderText .8s ease .9s forwards;
+}
+
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes loaderLetter {
+
+    0% {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+@keyframes loaderLine {
+
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 110px;
+    }
+
+}
+
+
+@keyframes loaderShine {
+
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 150%;
+    }
+
+}
+
+
+@keyframes loaderText {
+
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+@keyframes loaderRing {
+
+    0% {
+        transform: translate(-50%, -50%) scale(.85);
+        opacity: .35;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(.85);
+        opacity: .35;
+    }
+
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+
+    .loader-content span {
+        font-size: 75px;
+    }
+
+    .loader-content small {
+        font-size: 9px;
+        letter-spacing: 5px;
+    }
+
+    .loader::before {
+        width: 230px;
+        height: 230px;
+    }
+
+    .loader::after {
+        width: 400px;
+        height: 400px;
+    }
+
+}
+/* =============================================== 
 
    NAVBAR
 
-===================================================== */
+=====================================================  */
 
 .navbar {
 
@@ -6222,3 +6494,5 @@ body {
         height: 270px;
     }
 }
+
+
