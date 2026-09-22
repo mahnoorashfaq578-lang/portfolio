@@ -305,27 +305,6 @@ revealElements.forEach(
 
 
 /* =====================================================
-   SKILLS STAGGER
-===================================================== */
-
-const skillCards =
-    document.querySelectorAll(
-        ".skill-card"
-    );
-
-
-skillCards.forEach(
-    function (card, index) {
-
-        card.style.transitionDelay =
-            (index * 0.08) + "s";
-
-    }
-);
-
-
-
-/* =====================================================
    SERVICES STAGGER
 ===================================================== */
 
@@ -340,184 +319,6 @@ serviceCards.forEach(
 
         card.style.transitionDelay =
             (index * 0.08) + "s";
-
-    }
-);
-
-
-
-/* =====================================================
-   PROJECT SLIDER
-===================================================== */
-
-const projectTrack =
-    document.getElementById(
-        "projectTrack"
-    );
-
-
-const projectSlides =
-    document.querySelectorAll(
-        ".project-slide"
-    );
-
-
-const prevProject =
-    document.getElementById(
-        "prevProject"
-    );
-
-
-const nextProject =
-    document.getElementById(
-        "nextProject"
-    );
-
-
-const projectProgress =
-    document.getElementById(
-        "projectProgress"
-    );
-
-
-const projectNumber =
-    document.getElementById(
-        "projectNumber"
-    );
-
-
-let currentProject = 0;
-
-
-function updateProject() {
-
-    projectTrack.style.transform =
-        "translateX(-" +
-        (currentProject * 100) +
-        "%)";
-
-
-    const progress =
-        ((currentProject + 1) /
-            projectSlides.length) * 100;
-
-
-    projectProgress.style.width =
-        progress + "%";
-
-
-    let number =
-        currentProject + 1;
-
-
-    if (number < 10) {
-
-        number = "0" + number;
-
-    }
-
-
-    projectNumber.textContent =
-        number + " — 06";
-
-}
-
-
-
-nextProject.addEventListener(
-    "click",
-    function () {
-
-        currentProject++;
-
-
-        if (
-            currentProject >=
-            projectSlides.length
-        ) {
-
-            currentProject = 0;
-
-        }
-
-
-        updateProject();
-
-    }
-);
-
-
-
-prevProject.addEventListener(
-    "click",
-    function () {
-
-        currentProject--;
-
-
-        if (currentProject < 0) {
-
-            currentProject =
-                projectSlides.length - 1;
-
-        }
-
-
-        updateProject();
-
-    }
-);
-
-
-
-/* =====================================================
-   AUTO PROJECT SLIDER
-===================================================== */
-
-let projectAutoSlide =
-    setInterval(
-        function () {
-
-            currentProject++;
-
-
-            if (
-                currentProject >=
-                projectSlides.length
-            ) {
-
-                currentProject = 0;
-
-            }
-
-
-            updateProject();
-
-        },
-        6000
-    );
-
-
-
-nextProject.addEventListener(
-    "click",
-    function () {
-
-        clearInterval(
-            projectAutoSlide
-        );
-
-    }
-);
-
-
-prevProject.addEventListener(
-    "click",
-    function () {
-
-        clearInterval(
-            projectAutoSlide
-        );
 
     }
 );
@@ -690,8 +491,446 @@ if (servicesSection) {
     servicesObserver.observe(servicesSection);
 }
 
+
+/* =========================================
+   INFINITE SKILLS SLIDER
+========================================= */
+
+const skillsGrid = document.querySelector(".skills-grid");
+
+if (skillsGrid) {
+
+    let position = 0;
+    let lastTime = 0;
+
+    const speed = 50; // movement speed
+
+    function moveSkills(time) {
+
+        if (!lastTime) {
+            lastTime = time;
+        }
+
+        const deltaTime = (time - lastTime) / 1000;
+        lastTime = time;
+
+        position = position + speed * deltaTime;
+
+        const firstCard = skillsGrid.firstElementChild;
+
+        const cardWidth = firstCard.getBoundingClientRect().width;
+
+        const gap = parseFloat(
+            getComputedStyle(skillsGrid).gap
+        );
+
+        const moveDistance = cardWidth + gap;
+
+        /*
+           Jab first card completely left side
+           se bahar chala jaye to usko end par bhej do.
+        */
+
+        if (position >= moveDistance) {
+
+            position = position - moveDistance;
+
+            skillsGrid.appendChild(firstCard);
+        }
+
+        skillsGrid.style.transform =
+            "translate3d(-" + position + "px, 0, 0)";
+
+        requestAnimationFrame(moveSkills);
+    }
+
+    requestAnimationFrame(moveSkills);
+}
+
+
 /* =====================================================
-   INITIAL PROJECT
+   PROJECT CAROUSEL
+===================================================== */
+
+const projectTrack =
+    document.getElementById("projectTrack");
+
+const projectSlides =
+    document.querySelectorAll(".project-slide");
+
+const projectDots =
+    document.getElementById("projectDots");
+
+const prevProject =
+    document.getElementById("prevProject");
+
+const nextProject =
+    document.getElementById("nextProject");
+
+
+let currentProject = 0;
+
+const totalProjects =
+    projectSlides.length;
+
+
+/* =====================================================
+   CREATE DOTS
+===================================================== */
+
+projectSlides.forEach(function (slide, index) {
+
+    const dot =
+        document.createElement("button");
+
+    dot.classList.add("project-dot");
+
+    dot.setAttribute(
+        "aria-label",
+        "Go to project " + (index + 1)
+    );
+
+    dot.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+            currentProject = index;
+
+            updateProject();
+
+            resetAutoSlide();
+
+        }
+    );
+
+    projectDots.appendChild(dot);
+
+});
+
+
+const projectDotsAll =
+    document.querySelectorAll(".project-dot");
+
+
+/* =====================================================
+   GET CIRCULAR POSITION
+===================================================== */
+
+function getProjectPosition(index) {
+
+    let difference =
+        index - currentProject;
+
+
+    if (
+        difference > totalProjects / 2
+    ) {
+
+        difference -= totalProjects;
+
+    }
+
+
+    if (
+        difference < -totalProjects / 2
+    ) {
+
+        difference += totalProjects;
+
+    }
+
+
+    return difference;
+
+}
+
+
+/* =====================================================
+   UPDATE CARDS
+===================================================== */
+
+function updateProject() {
+
+    projectSlides.forEach(
+        function (slide, index) {
+
+            slide.classList.remove(
+                "active",
+                "left-1",
+                "left-2",
+                "left-3",
+                "right-1",
+                "right-2",
+                "right-3",
+                "hidden"
+            );
+
+
+            const position =
+                getProjectPosition(index);
+
+
+            /* CENTER */
+
+            if (position === 0) {
+
+                slide.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            /* LEFT 1 */
+
+            else if (position === -1) {
+
+                slide.classList.add(
+                    "left-1"
+                );
+
+            }
+
+
+            /* LEFT 2 */
+
+            else if (position === -2) {
+
+                slide.classList.add(
+                    "left-2"
+                );
+
+            }
+
+
+            /* LEFT 3 */
+
+            else if (position === -3) {
+
+                slide.classList.add(
+                    "left-3"
+                );
+
+            }
+
+
+            /* RIGHT 1 */
+
+            else if (position === 1) {
+
+                slide.classList.add(
+                    "right-1"
+                );
+
+            }
+
+
+            /* RIGHT 2 */
+
+            else if (position === 2) {
+
+                slide.classList.add(
+                    "right-2"
+                );
+
+            }
+
+
+            /* RIGHT 3 */
+
+            else if (position === 3) {
+
+                slide.classList.add(
+                    "right-3"
+                );
+
+            }
+
+
+            /* HIDDEN */
+
+            else {
+
+                slide.classList.add(
+                    "hidden"
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       UPDATE DOTS
+    ================================================= */
+
+    projectDotsAll.forEach(
+        function (dot, index) {
+
+            dot.classList.toggle(
+                "active",
+                index === currentProject
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   NEXT
+===================================================== */
+
+function nextProjectFunction() {
+
+    currentProject++;
+
+    if (
+        currentProject >= totalProjects
+    ) {
+
+        currentProject = 0;
+
+    }
+
+    updateProject();
+
+}
+
+
+/* =====================================================
+   PREVIOUS
+===================================================== */
+
+function previousProjectFunction() {
+
+    currentProject--;
+
+    if (
+        currentProject < 0
+    ) {
+
+        currentProject =
+            totalProjects - 1;
+
+    }
+
+    updateProject();
+
+}
+
+
+/* =====================================================
+   CARD CLICK
+===================================================== */
+
+projectSlides.forEach(
+    function (slide, index) {
+
+        slide.addEventListener(
+            "click",
+            function (event) {
+
+
+                /* DON'T TRIGGER CARD
+                   WHEN LIVE PROJECT IS CLICKED */
+
+                if (
+                    event.target.closest(
+                        ".project-link"
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                const position =
+                    getProjectPosition(index);
+
+
+                /* LEFT / RIGHT CARD */
+
+                if (
+                    position !== 0
+                ) {
+
+                    currentProject = index;
+
+                    updateProject();
+
+                    resetAutoSlide();
+
+                    return;
+
+                }
+
+
+                /* CENTER CARD */
+
+                if (
+                    position === 0
+                ) {
+
+                    nextProjectFunction();
+
+                    resetAutoSlide();
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   AUTO SLIDE
+===================================================== */
+
+let projectAutoSlide =
+    setInterval(
+        function () {
+
+            nextProjectFunction();
+
+        },
+        6000
+    );
+
+
+/* =====================================================
+   RESET AUTO SLIDE
+===================================================== */
+
+function resetAutoSlide() {
+
+    clearInterval(
+        projectAutoSlide
+    );
+
+
+    projectAutoSlide =
+        setInterval(
+            function () {
+
+                nextProjectFunction();
+
+            },
+            6000
+        );
+
+}
+
+
+/* =====================================================
+   INITIAL
 ===================================================== */
 
 updateProject();
